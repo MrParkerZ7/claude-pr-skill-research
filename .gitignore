@@ -1,0 +1,15 @@
+# build output
+build/
+.gradle/
+out/
+node_modules/
+dist/
+*.log
+
+# local tooling
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
+*.local
