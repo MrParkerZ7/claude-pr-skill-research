@@ -13,3 +13,5 @@ dist/
 .env.*
 !.env.example
 *.local
+# the docs repo (docs layout v2) is its own git repo
+/docs/
