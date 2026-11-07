@@ -13,5 +13,11 @@ dist/
 .env.*
 !.env.example
 *.local
+.kotlin/
+
+# records of soft-test-run and soft-pr-resolve, and disposable files
+🚫ignore/
+🚫*
+
 # the docs repo (docs layout v2) is its own git repo
 /docs/
