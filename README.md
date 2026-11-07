@@ -11,15 +11,23 @@ It holds a Kotlin Spring Boot WebFlux and React monorepo, so the pull requests o
 
 ## Develop
 
-Prerequisite: a JDK 21, with `JAVA_HOME` pointing at it (the web half, added later, also needs Node and pnpm).
+Prerequisites: a JDK 21, with `JAVA_HOME` pointing at it; and, for the web half, Node 24 (`web/.nvmrc`; `web/package.json` accepts `^22.22.2 || ^24.15.0 || >=26`) and pnpm 9.
 
 ```bash
+# the API (Kotlin, Spring Boot WebFlux)
 ./gradlew build            # format check, tests and the 100% coverage gate
 ./gradlew :api:bootRun     # the API on port 8080
 curl localhost:8080/actuator/health
+
+# the web app (React, TypeScript, Vite)
+pnpm --dir web install --frozen-lockfile
+pnpm --dir web run verify  # lint, format check, type check, tests at 100% coverage, build
+pnpm --dir web run build   # the production bundle alone, in web/dist
+pnpm --dir web dev         # http://localhost:5173, forwarding /api and /actuator to the API
+pnpm --dir web preview     # http://localhost:4173, serving the build (run build first)
 ```
 
-On Windows use `gradlew.bat`. `CLAUDE.md` lists the rest.
+On Windows use `gradlew.bat`. Set `API_ORIGIN` when the API is not on `http://localhost:8080`. `CLAUDE.md` lists the rest.
 
 ## Docs
 
