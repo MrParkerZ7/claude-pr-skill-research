@@ -14,6 +14,7 @@ dist/
 !.env.example
 *.local
 .kotlin/
+tests/postman/env/*.local.postman_environment.json
 
 # records of soft-test-run and soft-pr-resolve, and disposable files
 🚫ignore/
