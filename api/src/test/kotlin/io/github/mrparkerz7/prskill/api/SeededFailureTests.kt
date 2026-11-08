@@ -9,3 +9,4 @@ class SeededFailureTests {
         fail("seeded failure for the CI proof")
     }
 }
+// still seeded: this push is cancelled by the next one
