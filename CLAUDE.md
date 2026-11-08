@@ -29,6 +29,8 @@ The web half needs Node 24 (`web/.nvmrc`; `web/package.json` accepts `^22.22.2 |
 
 Both servers forward `/api` and `/actuator` to the API at `http://localhost:8080`; set `API_ORIGIN` to point them elsewhere. The web gates are never lowered: ESLint and Prettier clean, strict TypeScript, and 100% statement, branch, function and line coverage.
 
+CI = `.github/workflows/ci.yml`; the same commands run locally.
+
 ## Layout
 
 | Path | Holds |
