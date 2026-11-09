@@ -6,9 +6,10 @@
   --color-text: #15151a;
   --color-text-muted: #5b5b66;
   --color-accent: #3b5bdb;
-  --color-danger: #c92a2a;
-  --color-success: #2b8a3e;
-  --color-warning: #e67700;
+  /* danger, success and warning are also small bold text on a 12% tint of themselves: each keeps 4.5:1 there */
+  --color-danger: #b8262a;
+  --color-success: #1f7032;
+  --color-warning: #9a4c00;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -35,12 +36,32 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg: #101014;
-    --color-surface: #1b1b22;
+    --color-surface: #1d1d25;
     --color-text: #ececf1;
     --color-text-muted: #9a9aa8;
     --color-accent: #748ffc;
     --color-danger: #ff6b6b;
     --color-success: #69db7c;
     --color-warning: #ffa94d;
+
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 50%);
+    --shadow-2: 0 6px 16px rgb(0 0 0 / 55%);
   }
+}
+
+/* The same dark values, chosen by the page rather than the system: <html data-theme="dark">. Keep both in step. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #101014;
+  --color-surface: #1d1d25;
+  --color-text: #ececf1;
+  --color-text-muted: #9a9aa8;
+  --color-accent: #748ffc;
+  --color-danger: #ff6b6b;
+  --color-success: #69db7c;
+  --color-warning: #ffa94d;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 50%);
+  --shadow-2: 0 6px 16px rgb(0 0 0 / 55%);
 }

@@ -34,6 +34,16 @@ const colors = (block: string) =>
   )
 
 describe('theme.css', () => {
+  it('T006-UI the page-chosen dark theme, :root[data-theme="dark"], has exactly the system dark values', () => {
+    const chosen = /^:root\[data-theme='dark'\] \{([^}]*)\}/m.exec(css)?.[1] ?? ''
+    const tokens = (block: string) =>
+      [...block.matchAll(/(--[a-z0-9-]+):\s*([^;]*);/g)].map((m) => `${m[1]}: ${m[2]}`).sort()
+
+    expect(tokens(chosen)).toEqual(tokens(dark))
+    expect([...colors(chosen).keys()].sort()).toEqual(contract)
+    expect(chosen).toMatch(/color-scheme:\s*dark;/)
+  })
+
   it('T002-S3 defines every --color-* token, with a value, in the light block and in the dark block', () => {
     for (const block of [light, dark]) {
       const declared = colors(block)
