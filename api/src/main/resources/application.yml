@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: api
+  http:
+    codecs:
+      max-in-memory-size: 16KB
+  webflux:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+  # Open SSE streams close at once when the API stops; graceful shutdown would hold them for up to 30 s.
+  shutdown: immediate
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        # Boot 4 enables the probes by default, which adds "groups" to the health body.
+        enabled: false

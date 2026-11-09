@@ -1,0 +1,253 @@
+{
+  "info": {
+    "_postman_id": "e6d3d8e5-a363-43cb-a0ba-60e943963e7e",
+    "name": "claude-pr-skill-research api",
+    "description": "Contract tests for the :api service. Run with tests/postman/env/local.postman_environment.json: postman collection run tests/postman/api.postman_collection.json -e tests/postman/env/local.postman_environment.json (start the API first).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Read-only",
+      "description": "GET and HEAD items with no side effect, each named with @prod-safe. Away from local, every run is -i \"Read-only\".",
+      "item": [
+        {
+          "name": "[GET /actuator] S1 discovery page lists only health @prod-safe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('T009-API-GET-/actuator-S1 status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator-S1 Content-Type is the actuator v3 type', function () {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/vnd\\.spring-boot\\.actuator\\.v3\\+json(;|$)/);",
+                  "});",
+                  "const link = { type: 'object', required: ['href', 'templated'], additionalProperties: false,",
+                  "  properties: { href: { type: 'string' }, templated: { type: 'boolean' } } };",
+                  "const schema = { type: 'object', required: ['_links'], additionalProperties: false,",
+                  "  properties: { _links: { type: 'object', required: ['self', 'health', 'health-path'], additionalProperties: false,",
+                  "    properties: { self: link, health: link, 'health-path': link } } } };",
+                  "pm.test('T009-API-GET-/actuator-S1 body matches the discovery schema', function () {",
+                  "  pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator-S1 links point at health only', function () {",
+                  "  const l = pm.response.json()._links;",
+                  "  pm.expect(l.self.href).to.match(/\\/actuator$/);",
+                  "  pm.expect(l.self.templated).to.equal(false);",
+                  "  pm.expect(l.health.href).to.match(/\\/actuator\\/health$/);",
+                  "  pm.expect(l.health.templated).to.equal(false);",
+                  "  pm.expect(l['health-path'].href).to.match(/\\/actuator\\/health\\/\\{\\*path\\}$/);",
+                  "  pm.expect(l['health-path'].templated).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator"
+              ]
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "[GET /actuator/health] OS1 Accept application/json gets plain JSON @prod-safe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('T009-API-GET-/actuator/health-OS1 status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health-OS1 Content-Type is application/json', function () {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json(;|$)/);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health-OS1 body is exactly status UP', function () {",
+                  "  pm.expect(pm.response.text()).to.equal('{\"status\":\"UP\"}');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "[GET /actuator/health/{*path}] B1 an empty path is the health root @prod-safe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-B1 the request keeps its trailing slash', function () {",
+                  "  pm.expect(pm.request.url.getPath()).to.equal('/actuator/health/');",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-B1 status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-B1 Content-Type is the actuator v3 type', function () {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/vnd\\.spring-boot\\.actuator\\.v3\\+json(;|$)/);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-B1 body is exactly status UP', function () {",
+                  "  pm.expect(pm.response.text()).to.equal('{\"status\":\"UP\"}');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health",
+                ""
+              ]
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "actuator",
+      "description": "Actuator items that run on local and non-production stages only: negative and exposure checks.",
+      "item": [
+        {
+          "name": "[GET /actuator/health] OF1 Accept text/plain is not acceptable",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('T009-API-GET-/actuator/health-OF1 status is 406', function () {",
+                  "  pm.response.to.have.status(406);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "[GET /actuator/health/{*path}] F1 a component path is hidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-F1 status is 404', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('T009-API-GET-/actuator/health/{*path}-F1 body is empty', function () {",
+                  "  pm.expect(pm.response.text()).to.equal('');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health",
+                "ping"
+              ]
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('T008-guard no stack trace or exception class in the body', function () {",
+          "  const body = pm.response.text();",
+          "  pm.expect(body).to.not.match(/\"trace\"\\s*:|\"exception\"\\s*:|\\bat [\\w.$]+\\([\\w$]+\\.(?:java|kt):\\d+\\)/);",
+          "});"
+        ]
+      }
+    }
+  ]
+}
