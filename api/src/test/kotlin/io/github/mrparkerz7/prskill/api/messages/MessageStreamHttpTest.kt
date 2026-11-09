@@ -357,7 +357,8 @@ class MessageStreamHttpTest(
 
     @Test
     fun `T005-L1 over HTTP closing the connection releases its subscription within 1 s`() {
-        // The cases before this one closed their streams; no other test class opens one.
+        // The cases before this one closed their streams. StreamJourneyScenarioTest (T-012) shares this context and
+        // closes every stream it opens; no other class on it opens one.
         awaitTrue("no subscription left", Duration.ofSeconds(5)) { store.subscriberCount() == 0 }
         val sse = Sse()
         sse.assertConnected()

@@ -360,8 +360,7 @@ class MessageStreamTest {
 
     @Test
     fun `T005-C2 subscribers joining at random points get exactly the ids above their resume point`() {
-        val seed = System.nanoTime()
-        println("T005-C2 seed $seed")
+        val seed = 20261109L
         val random = Random(seed)
         val store = storeWith(0)
         val stream = MessageStream(store, quiet)

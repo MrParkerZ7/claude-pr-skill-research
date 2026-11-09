@@ -267,7 +267,7 @@ describe('frames and resyncs (SPEC-001 D5)', () => {
     expect(idsOf(page)).toEqual(ids(1, 6).reverse())
   })
 
-  it('T006-S15 the first reload’s answer arriving late is ignored, before and after the second’s', async () => {
+  it('T006-S15 the first reload’s late success, answered before the second’s, is ignored', async () => {
     const page = await live(listOf(E, [1, 2, 3]), { ignoreAbort: true })
     act(() => latest().resync({ reason: 'gap', epoch: E, latestId: 9 }))
     const first = page.http.last()
