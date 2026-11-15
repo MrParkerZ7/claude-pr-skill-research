@@ -44,6 +44,8 @@ export type FeedAction =
 
 export const MAX_MESSAGES = 100
 export const MAX_LENGTH = 280
+/** The page's own retries after a closed stream, after which it is Offline (SPEC-001 D2). */
+export const MAX_ATTEMPTS = 5
 
 export const initialFeedState = (): FeedState => ({
   list: 'loading',

@@ -12,6 +12,7 @@ import {
   canSend,
   feedReducer,
   initialFeedState,
+  MAX_ATTEMPTS,
   type FeedAction,
   type FeedState,
 } from './feedReducer'
@@ -41,8 +42,7 @@ export interface Feed {
 
 /** Every list GET and the POST give up after this long (SPEC-001 D1, D4). */
 export const REQUEST_TIMEOUT_MS = 10_000
-/** The page's own retries after a closed stream wait 1, 2, 4, 8 and 16 s (SPEC-001 D2). */
-export const MAX_ATTEMPTS = 5
+/** The wait before the page's own retry number `attempt` after a closed stream: 1, 2, 4, 8 and 16 s (SPEC-001 D2). */
 export const backoffDelay = (attempt: number): number => 1000 * 2 ** (attempt - 1)
 
 const CLOSED = 2

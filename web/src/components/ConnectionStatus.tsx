@@ -1,5 +1,4 @@
-import { MAX_ATTEMPTS } from '../feed/useMessageFeed'
-import type { Connection } from '../feed/feedReducer'
+import { MAX_ATTEMPTS, type Connection } from '../feed/feedReducer'
 
 interface Props {
   readonly connection: Connection
