@@ -4,9 +4,6 @@ spring:
   http:
     codecs:
       max-in-memory-size: 16KB
-  webflux:
-    problemdetails:
-      enabled: true
 
 server:
   port: 8080
