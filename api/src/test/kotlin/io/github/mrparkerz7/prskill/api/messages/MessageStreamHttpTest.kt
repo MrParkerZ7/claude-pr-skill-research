@@ -360,12 +360,13 @@ class MessageStreamHttpTest(
         // The cases before this one closed their streams. StreamJourneyScenarioTest (T-012) shares this context and
         // closes every stream it opens; no other class on it opens one.
         awaitTrue("no subscription left", Duration.ofSeconds(5)) { store.subscriberCount() == 0 }
-        val sse = Sse()
-        sse.assertConnected()
-        // `:connected` is written just before the chain subscribes to the sink, so the count may lag by a moment.
-        awaitTrue("one subscription", Duration.ofSeconds(1)) { store.subscriberCount() > 0 }
-        assertEquals(1, store.subscriberCount())
-        sse.close()
+        // `use` closes the stream however the checks end, so a failed assertion cannot leave it open for the next case.
+        Sse().use { sse ->
+            sse.assertConnected()
+            // `:connected` is written just before the chain subscribes to the sink, so the count may lag by a moment.
+            awaitTrue("one subscription", Duration.ofSeconds(1)) { store.subscriberCount() > 0 }
+            assertEquals(1, store.subscriberCount())
+        }
         awaitTrue("subscriberCount() back to 0", Duration.ofSeconds(1)) { store.subscriberCount() == 0 }
     }
 
@@ -375,8 +376,11 @@ class MessageStreamHttpTest(
             sse.assertConnected()
             sse.assertLiveNext("warm-up")
         }
-        val subscribers = List(10) { Sse() }
+        // Each stream joins the list as soon as it opens, inside the try, so a failure while opening the third still
+        // closes the first two.
+        val subscribers = mutableListOf<Sse>()
         try {
+            repeat(10) { subscribers += Sse() }
             subscribers.forEach { it.assertConnected() }
             val started = System.nanoTime()
             val sent = postMessage("p1")["id"].longValue()
