@@ -1,0 +1,8 @@
+{
+  "detail": "Message text must be 1 to 280 characters.",
+  "instance": "/api/messages",
+  "status": 400,
+  "title": "Invalid request",
+  "field": "text",
+  "reason": "blank"
+}

@@ -1,0 +1,11 @@
+retry:3000
+:connected
+
+id:0123abcd.1
+event:message
+data:{"id":1,"epoch":"0123abcd","text":"a","createdAt":"2026-11-06T10:15:30.123Z"}
+
+id:0123abcd.2
+event:message
+data:{"id":2,"epoch":"0123abcd","text":"b","createdAt":"2026-11-06T10:15:30.123Z"}
+

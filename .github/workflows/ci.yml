@@ -1,0 +1,97 @@
+name: ci
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+
+# A newer run of the same pull request (or branch) cancels the older one.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Validates gradle-wrapper.jar before any Gradle step runs.
+      - uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      # The cache is written by pushes (to dev) and only read by pull requests.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      # build only checks coverage, so the two report tasks are added to write what the artifact carries. --continue
+      # lets them run when koverVerify fails, which is when the report is wanted. The last line fails the step if the
+      # report is missing, because the upload below fails only when none of its paths match.
+      - name: Build, run every gate and write the coverage report
+        run: |
+          ./gradlew build :api:koverHtmlReport :api:koverXmlReport --continue
+          test -f api/build/reports/kover/report.xml
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: api-test-results
+          path: |
+            api/build/test-results/test/*.xml
+            api/build/reports/kover/
+          retention-days: 7
+          if-no-files-found: error
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # pnpm first: setup-node's pnpm cache needs the pnpm binary. The version is the package.json packageManager.
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - name: Install from the lockfile
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm run lint
+      - name: Format check
+        run: pnpm run format:check
+      - name: Type check
+        run: pnpm run typecheck
+      # Same as test:coverage; the reporter flags are the one difference from the local verify script. The configured
+      # text reporter writes no file, so the html reporter is added for the artifact; naming the reporters on the
+      # command line replaces the configured ones, so the log's text table is shorter than the local one (the 100%
+      # thresholds are unchanged). The last line fails the step if the report is missing.
+      - name: Test with coverage
+        run: |
+          pnpm exec vitest run --coverage --coverage.reporter=text --coverage.reporter=html --reporter=default --reporter=junit --outputFile.junit=build/test-results/junit.xml
+          test -f coverage/index.html
+      - name: Build
+        run: pnpm run build
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: web-test-results
+          path: |
+            web/build/test-results/junit.xml
+            web/coverage/
+          retention-days: 7
+          if-no-files-found: error
