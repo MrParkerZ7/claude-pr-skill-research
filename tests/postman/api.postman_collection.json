@@ -8,7 +8,7 @@
   "item": [
     {
       "name": "Read-only",
-      "description": "GET and HEAD items with no side effect, each named with @prod-safe. Away from local, every run is -i \"Read-only\".",
+      "description": "The prod-safe set: GET and HEAD items with no side effect, each named with @prod-safe, and only those. Away from local, every run is -i \"Read-only\".",
       "item": [
         {
           "name": "[GET /actuator] S1 discovery page lists only health @prod-safe",
@@ -152,8 +152,8 @@
       ]
     },
     {
-      "name": "actuator",
-      "description": "Actuator items that run on local and non-production stages only: negative and exposure checks.",
+      "name": "Non-production",
+      "description": "Items that run on local and non-production stages only: negative and exposure checks. None carries @prod-safe, so a run away from local never selects this folder.",
       "item": [
         {
           "name": "[GET /actuator/health] OF1 Accept text/plain is not acceptable",
