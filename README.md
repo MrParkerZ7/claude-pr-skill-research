@@ -7,7 +7,7 @@ domain: solution
 
 [![ci](https://github.com/MrParkerZ7/claude-pr-skill-research/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/MrParkerZ7/claude-pr-skill-research/actions/workflows/ci.yml)
 
-A small test bed for the `soft-pr-*` skills (`pr-create`, `pr-update`, `pr-review`, `pr-review-deep`, `pr-resolve`).
+A small test bed for the `soft-pr-*` skills (`pr-create`, `pr-update`, `pr-review`, `pr-review-deep`, `pr-resolve`). It also proves `soft-git-scan` (what the host enforces) and `todo-pr` (a board scope built through pull requests).
 
 It holds a Kotlin Spring Boot WebFlux and React monorepo, so the pull requests opened here have real code to describe, review and resolve. Work lands on `dev` and reaches `main` through a pull request.
 
