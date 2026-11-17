@@ -19,7 +19,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('T009-API-GET-/actuator-S1 status is 200', function () {",
-                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.have.status(201);",
                   "});",
                   "pm.test('T009-API-GET-/actuator-S1 Content-Type is the actuator v3 type', function () {",
                   "  pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/vnd\\.spring-boot\\.actuator\\.v3\\+json(;|$)/);",
