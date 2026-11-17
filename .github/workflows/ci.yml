@@ -95,3 +95,63 @@ jobs:
             web/coverage/
           retention-days: 7
           if-no-files-found: error
+
+  # The API contract: tests/postman/ run by the Postman CLI against the API built from this commit. It is a check of
+  # its own, so a contract break never reads as a unit-test failure. It starts only after the api job passed, which
+  # already validated the Gradle wrapper, so this job has no wrapper step of its own. The collection has no
+  # authentication, so nothing here needs a credential and nothing signs in to Postman.
+  api-contract:
+    needs: api
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      # Read-only on pull requests, as in the api job.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      - name: Build the API jar
+        run: ./gradlew :api:bootJar
+      # The jar glob must match exactly one file, the boot jar and not the plain one. The pid file is how the last
+      # step stops the API.
+      - name: Start the API
+        run: |
+          mkdir -p build/postman
+          JARS=$(ls api/build/libs/*.jar | grep -v -- '-plain\.jar$')
+          [ "$(echo "$JARS" | wc -l)" -eq 1 ] || { echo "$JARS"; exit 1; }
+          java -jar "$JARS" > build/postman/api.log 2>&1 &
+          echo $! > build/postman/api.pid
+      - name: Wait for the API to answer its health check
+        run: |
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8080/actuator/health && exit 0
+            sleep 1
+          done
+          exit 1
+      # The CLI is a runner tool, not an app dependency: the exact version T-008 recorded, never a range.
+      - name: Install the Postman CLI
+        run: npm install -g postman-cli@1.86.0
+      # The command of operations/DEV.md, unchanged: the whole collection, the JUnit report beside the console one, and
+      # a stop at the first failure.
+      - name: Run the collection
+        run: |
+          postman collection run tests/postman/api.postman_collection.json \
+            -e tests/postman/env/local.postman_environment.json \
+            -r cli,junit --reporter-junit-export build/postman/postman-junit.xml \
+            --bail failure --timeout-request 10000
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: api-contract-results
+          path: build/postman/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Stop the API
+        if: always()
+        run: kill "$(cat build/postman/api.pid)" || true
