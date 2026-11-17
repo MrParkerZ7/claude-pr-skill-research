@@ -134,9 +134,15 @@ jobs:
             sleep 1
           done
           exit 1
-      # The CLI is a runner tool, not an app dependency: the exact version T-008 recorded, never a range.
+      # The CLI is a runner tool, not an app dependency: the exact version T-008 recorded, never a range. The runner's
+      # own global prefix is owned by root (the install fails on its man page link with EACCES), so the install goes
+      # to a prefix under the runner's temp folder, which is put on the path for the next steps.
       - name: Install the Postman CLI
-        run: npm install -g postman-cli@1.86.0
+        env:
+          NPM_CONFIG_PREFIX: ${{ runner.temp }}/npm-global
+        run: |
+          npm install -g postman-cli@1.86.0
+          echo "$NPM_CONFIG_PREFIX/bin" >> "$GITHUB_PATH"
       # The command of operations/DEV.md, unchanged: the whole collection, the JUnit report beside the console one, and
       # a stop at the first failure.
       - name: Run the collection
@@ -145,6 +151,10 @@ jobs:
             -e tests/postman/env/local.postman_environment.json \
             -r cli,junit --reporter-junit-export build/postman/postman-junit.xml \
             --bail failure --timeout-request 10000
+      # A collection with no request in it runs zero requests and exits 0, so the exit code alone would pass an
+      # emptied collection. The report must hold at least one test case.
+      - name: Check that requests ran
+        run: test "$(grep -c '<testcase ' build/postman/postman-junit.xml)" -gt 0
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
