@@ -28,6 +28,18 @@
   line-height: 1.2;
 }
 
+/*
+ * On a narrow screen the pill's longest text ("Reconnecting… (attempt 5 of 5)") does not fit beside the title, so it
+ * wrapped below it in some states only and moved the composer and Send each time the state changed (T-018). Stacked,
+ * the pill always has its own row, in every state.
+ */
+@media (max-width: 36rem) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 .app-main {
   display: flex;
   flex-direction: column;
@@ -70,6 +82,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+
+  /* Offline adds the Reconnect button, taller than the pill: a row at least that tall keeps the header's height. */
+  min-height: 2.5rem;
 }
 
 .pill {
@@ -116,6 +131,9 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
+
+  /* The edge is always 1px, clear in light (the shadow lifts the card there) and a hairline in dark (see the end). */
+  border: 1px solid transparent;
   border-radius: var(--radius-2);
   background: var(--color-surface);
   box-shadow: var(--shadow-2);
@@ -223,4 +241,34 @@
 .message__time {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+
+/*
+ * Dark only (T-018): the composer's tint alone barely set it apart from the page, so it gets a hairline edge, and a
+ * disabled button turns into a ghost (muted text and edge, no fill) instead of a faded copy of the active one.
+ * The two forms carry the same values, the system's and the page's, as theme.css does: keep both in step.
+ */
+
+@media (prefers-color-scheme: dark) {
+  .composer {
+    border-color: color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+  }
+
+  .button:disabled {
+    background: transparent;
+    color: var(--color-text-muted);
+    border-color: var(--color-text-muted);
+    opacity: 1;
+  }
+}
+
+:root[data-theme='dark'] .composer {
+  border-color: color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+}
+
+:root[data-theme='dark'] .button:disabled {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  opacity: 1;
 }

@@ -11,7 +11,10 @@ interface Props {
   readonly onSend: () => void
 }
 
-/** SPEC-001 D3 and D4. Enter does exactly what Send does; the hook decides whether a send may start. */
+/**
+ * SPEC-001 D3 and D4. Enter does exactly what Send does; the hook decides whether a send may start. While a post is
+ * pending the button reads "Sending…" and the form is busy (T-018); idle, the button is "Send".
+ */
 export function Composer({ draft, sending, error, inputRef, onEdit, onSend }: Props) {
   const length = codePoints(draft)
   const over = length > MAX_LENGTH
@@ -33,7 +36,7 @@ export function Composer({ draft, sending, error, inputRef, onEdit, onSend }: Pr
   }
 
   return (
-    <form className="composer" onSubmit={submit}>
+    <form className="composer" aria-busy={sending} onSubmit={submit}>
       <label className="composer__label" htmlFor="message">
         Message
       </label>
@@ -56,7 +59,7 @@ export function Composer({ draft, sending, error, inputRef, onEdit, onSend }: Pr
           {`${length} / ${MAX_LENGTH}`}
         </p>
         <button type="submit" className="button" disabled={sending || !canSend(draft)}>
-          Send
+          {sending ? 'Sending…' : 'Send'}
         </button>
       </div>
       {error !== null && (

@@ -313,9 +313,10 @@ describe('the composer (SPEC-001 D3, D4)', () => {
     expect(sent.body).toEqual({ text: 'hello' })
     expect(textbox()).toHaveAttribute('readonly')
     expect(textbox()).toHaveFocus()
-    expect(sendButton()).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Sending…' })).toBeDisabled()
 
     await answer(sent, reply(201, msg(4, E, 'hello')))
+    expect(sendButton()).toBeDisabled()
     expect(textbox()).toHaveValue('')
     expect(textbox()).toHaveFocus()
     expect(textbox()).not.toHaveAttribute('readonly')

@@ -99,8 +99,24 @@ describe('Composer (SPEC-001 D3, D4)', () => {
 
     c.update({ draft: 'hello', sending: true })
     expect(c.textbox()).toHaveAttribute('readonly')
-    expect(c.send()).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Sending…' })).toBeDisabled()
     expect(c.textbox()).toHaveFocus()
+  })
+
+  it('T018-5 while sending the button reads "Sending…" and the form is busy; idle it reads "Send" and is not', () => {
+    const c = composer({ draft: 'hello' })
+    const form = () => c.textbox().closest('form')
+    expect(c.send()).toHaveTextContent(/^Send$/)
+    expect(form()).toHaveAttribute('aria-busy', 'false')
+
+    c.update({ draft: 'hello', sending: true })
+    expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Sending…' })).toBeDisabled()
+    expect(form()).toHaveAttribute('aria-busy', 'true')
+
+    c.update({ draft: '' })
+    expect(c.send()).toBeDisabled()
+    expect(form()).toHaveAttribute('aria-busy', 'false')
   })
 
   it('T006-S4 an edit reports the new text', () => {
